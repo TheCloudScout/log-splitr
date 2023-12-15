@@ -1,0 +1,911 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "parameters": {
+    "workspaceName": {
+      "defaultValue": "la-logging-01",
+      "type": "string"
+    },
+    "dcrName": {
+      "defaultValue": "dcr-la-logging-01",
+      "type": "string"
+    }
+  },
+  "variables": {
+    "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+  },
+  "resources": [
+    {
+      "kind": "WorkspaceTransforms",
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "name": "[parameters('dcrName')]",
+      "properties": {
+        "destinations": {
+          "logAnalytics": [
+            {
+              "name": "[parameters('workspaceName')]",
+              "workspaceResourceId": "[variables('workspaceResourceId')]"
+            }
+          ]
+        },
+        "dataSources": {},
+        "dataFlows": [
+          {
+            "transformKql": "source\n| where OperationName == 'DeleteFile' or \n        OperationName == 'Flush' or \n        Category == 'StorageDelete'\n",
+            "destinations": [
+              "[parameters('workspaceName')]"
+            ],
+            "streams": [
+              "Microsoft-Table-StorageBlobLogs"
+            ]
+          },
+          {
+            "transformKql": "source\n",
+            "destinations": [
+              "[parameters('workspaceName')]"
+            ],
+            "outputStream": "Custom-StorageBlobLogs_CL",
+            "streams": [
+              "Microsoft-Table-StorageBlobLogs"
+            ]
+          },
+          {
+            "transformKql": "source\n| where OperationName == 'DeleteFile' or \n        OperationName == 'Flush' or \n        Category == 'StorageDelete'\n",
+            "destinations": [
+              "[parameters('workspaceName')]"
+            ],
+            "streams": [
+              "Microsoft-Table-StorageFileLogs"
+            ]
+          },
+          {
+            "transformKql": "source\n",
+            "destinations": [
+              "[parameters('workspaceName')]"
+            ],
+            "outputStream": "Custom-StorageFileLogs_CL",
+            "streams": [
+              "Microsoft-Table-StorageFileLogs"
+            ]
+          },
+          {
+            "transformKql": "source\n| where OperationName == 'DeleteFile' or \n        OperationName == 'Flush' or \n        Category == 'StorageDelete'\n",
+            "destinations": [
+              "[parameters('workspaceName')]"
+            ],
+            "streams": [
+              "Microsoft-Table-StorageQueueLogs"
+            ]
+          },
+          {
+            "transformKql": "source\n| where OperationName == 'DeleteFile' or \n        OperationName == 'Flush' or \n        Category == 'StorageDelete'\n",
+            "destinations": [
+              "[parameters('workspaceName')]"
+            ],
+            "streams": [
+              "Microsoft-Table-StorageTableLogs"
+            ]
+          }
+        ]
+      },
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageBlobLogs_CL')]",
+        "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageFileLogs_CL')]"
+      ],
+      "apiVersion": "2022-06-01"
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "properties": {
+        "totalRetentionInDays": 180,
+        "plan": "Analytics"
+      },
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageBlobLogs')]",
+      "apiVersion": "2022-10-01",
+      "name": "[concat(parameters('workspaceName'), '/StorageBlobLogs')]"
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "properties": {
+        "schema": {
+          "name": "StorageBlobLogs_CL",
+          "columns": [
+            {
+              "name": "TimeGenerated",
+              "type": "datetime",
+              "description": "The Universal Time Coordinated (UTC) time when the request was received by storage.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "AccountName",
+              "type": "string",
+              "description": "The name of the storage account.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "Location",
+              "type": "string",
+              "description": "The location of storage account.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "Protocol",
+              "type": "string",
+              "description": "The protocol that is used in the operation.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "OperationName",
+              "type": "string",
+              "description": "The type of REST operation that was performed.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "AuthenticationType",
+              "type": "string",
+              "description": "The type of authentication that was used to make the request.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "StatusCode",
+              "type": "string",
+              "description": "The HTTP status code for the request. If the request is interrupted, this value might be set to Unknown.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "StatusText",
+              "type": "string",
+              "description": "The status of the requested operation.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "DurationMs",
+              "type": "real",
+              "description": "The total time, expressed in milliseconds, to perform the requested operation. This includes the time to read the incoming request, and to send the response to the requester.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ServerLatencyMs",
+              "type": "real",
+              "description": "The total time expressed in milliseconds to perform the requested operation. This value doesn't include network latency (the time to read the incoming request and send the response to the requester).",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "Uri",
+              "type": "string",
+              "description": "Uniform resource identifier that is requested.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "CallerIpAddress",
+              "type": "string",
+              "description": "The IP address of the requester, including the port number.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "CorrelationId",
+              "type": "string",
+              "description": "The ID that is used to correlate logs across resources.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SchemaVersion",
+              "type": "string",
+              "description": "The schema version of the log.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "OperationVersion",
+              "type": "string",
+              "description": "The storage service version that was specified when the request was made. This is equivalent to the value of the x-ms-version header.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "AuthenticationHash",
+              "type": "string",
+              "description": "The hash of authentication token.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequesterObjectId",
+              "type": "string",
+              "description": "The OAuth object ID of the requester.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequesterTenantId",
+              "type": "string",
+              "description": "The OAuth tenant ID of identity.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequesterAppId",
+              "type": "string",
+              "description": "The Open Authorization (OAuth) application ID that is used as the requester.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequesterAudience",
+              "type": "string",
+              "description": "The OAuth audience of the request.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequesterTokenIssuer",
+              "type": "string",
+              "description": "The OAuth token issuer.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequesterUpn",
+              "type": "string",
+              "description": "The User Principal Names of requestor.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "AuthorizationDetails",
+              "type": "dynamic",
+              "description": "Detailed policy information used to authorize the request.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "UserAgentHeader",
+              "type": "string",
+              "description": "The User-Agent header value, in quotes.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ReferrerHeader",
+              "type": "string",
+              "description": "The Referer header value.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ClientRequestId",
+              "type": "string",
+              "description": "The x-ms-client-request-id header value of the request.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "Etag",
+              "type": "string",
+              "description": "The ETag identifier for the returned object, in quotes.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ServiceType",
+              "type": "string",
+              "description": "The service associated with this request.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "OperationCount",
+              "type": "int",
+              "description": "The number of each logged operation that is involved in the request. This count starts with an index of 0. Some requests require more than one operation, such as a request to copy a blob. Most requests perform only one operation.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ObjectKey",
+              "type": "string",
+              "description": "The key of the requested object, in quotes.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequestHeaderSize",
+              "type": "long",
+              "description": "The size of the request header expressed in bytes. If a request is unsuccessful, this value might be empty.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequestBodySize",
+              "type": "long",
+              "description": "The size of the request packets, expressed in bytes, that are read by the storage service. If a request is unsuccessful, this value might be empty.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ResponseHeaderSize",
+              "type": "long",
+              "description": "The size of the response header expressed in bytes. If a request is unsuccessful, this value might be empty.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ResponseBodySize",
+              "type": "long",
+              "description": "The size of the response packets written by the storage service, in bytes. If a request is unsuccessful, this value may be empty.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequestMd5",
+              "type": "string",
+              "description": "The value of either the Content-MD5 header or the x-ms-content-md5 header in the request. The MD5 hash value specified in this field represents the content in the request.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ResponseMd5",
+              "type": "string",
+              "description": "The value of the MD5 hash calculated by the storage service.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "LastModifiedTime",
+              "type": "datetime",
+              "description": "The Last Modified Time (LMT) for the returned object. This field is empty for operations that can return multiple objects.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ConditionsUsed",
+              "type": "string",
+              "description": "A semicolon-separated list of key-value pairs that represent a condition.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ContentLengthHeader",
+              "type": "long",
+              "description": "The value of the Content-Length header for the request sent to the storage service.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "Category",
+              "type": "string",
+              "description": "The category of requested operation.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "TlsVersion",
+              "type": "string",
+              "description": "The TLS version used in the connection of request.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SasExpiryStatus",
+              "type": "string",
+              "description": "Records any violations in the request SAS token as per the SAS policy set in the storage account. Ex: longer SAS token duration specified than allowed per SAS policy",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "MetricResponseType",
+              "type": "string",
+              "description": "Records the metric response for correlation between metrics and logs.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SourceUri",
+              "type": "string",
+              "description": "Records the source URI for operations.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "DestinationUri",
+              "type": "string",
+              "description": "Records the destination URI for operations.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "AccessTier",
+              "type": "string",
+              "description": "The access tier of the storage account.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SourceAccessTier",
+              "type": "string",
+              "description": "The source tier of the storage account.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RehydratePriority",
+              "type": "string",
+              "description": "The priority used to rehydrate an archived blob.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SourceSystem",
+              "type": "string",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            }
+          ]
+        },
+        "name": "StorageBlobLogs_CL",
+        "plan": "Basic",
+        "totalRetentionInDays": 8
+      },
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageBlobLogs_CL')]",
+      "apiVersion": "2021-12-01-preview",
+      "name": "[concat(parameters('workspaceName'), '/StorageBlobLogs_CL')]"
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "properties": {
+        "totalRetentionInDays": 180,
+        "plan": "Analytics"
+      },
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageFileLogs')]",
+      "apiVersion": "2022-10-01",
+      "name": "[concat(parameters('workspaceName'), '/StorageFileLogs')]"
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "properties": {
+        "schema": {
+          "name": "StorageFileLogs_CL",
+          "columns": [
+            {
+              "name": "TimeGenerated",
+              "type": "datetime",
+              "description": "The Universal Time Coordinated (UTC) time when the request was received by storage.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "AccountName",
+              "type": "string",
+              "description": "The name of the storage account.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "Location",
+              "type": "string",
+              "description": "The location of storage account.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "Protocol",
+              "type": "string",
+              "description": "The protocol that is used in the operation.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "OperationName",
+              "type": "string",
+              "description": "The type of REST operation that was performed.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "AuthenticationType",
+              "type": "string",
+              "description": "The type of authentication that was used to make the request.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "StatusCode",
+              "type": "string",
+              "description": "The HTTP status code for the request. If the request is interrupted, this value might be set to Unknown.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "StatusText",
+              "type": "string",
+              "description": "The status of the requested operation.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "DurationMs",
+              "type": "real",
+              "description": "The total time, expressed in milliseconds, to perform the requested operation. This includes the time to read the incoming request, and to send the response to the requester.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ServerLatencyMs",
+              "type": "real",
+              "description": "The total time expressed in milliseconds to perform the requested operation. This value doesn't include network latency (the time to read the incoming request and send the response to the requester).",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "Uri",
+              "type": "string",
+              "description": "Uniform resource identifier that is requested.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "CallerIpAddress",
+              "type": "string",
+              "description": "The IP address of the requester, including the port number.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "CorrelationId",
+              "type": "string",
+              "description": "The ID that is used to correlate logs across resources.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SchemaVersion",
+              "type": "string",
+              "description": "The schema version of the log.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "OperationVersion",
+              "type": "string",
+              "description": "The storage service version that was specified when the request was made. This is equivalent to the value of the x-ms-version header.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "AuthenticationHash",
+              "type": "string",
+              "description": "The hash of authentication token.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequesterObjectId",
+              "type": "string",
+              "description": "The OAuth object ID of the requester.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequesterTenantId",
+              "type": "string",
+              "description": "The OAuth tenant ID of identity.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequesterAppId",
+              "type": "string",
+              "description": "The Open Authorization (OAuth) application ID that is used as the requester.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequesterAudience",
+              "type": "string",
+              "description": "The OAuth audience of the request.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequesterTokenIssuer",
+              "type": "string",
+              "description": "The OAuth token issuer.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequesterUpn",
+              "type": "string",
+              "description": "The User Principal Names of requester.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequesterUserName",
+              "type": "string",
+              "description": "The user name of requester for SMB.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "AuthorizationDetails",
+              "type": "dynamic",
+              "description": "Detailed policy information used to authorize the request.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SmbPrimarySID",
+              "type": "string",
+              "description": "Security Identifier of Kerberos Authenticated request",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "UserAgentHeader",
+              "type": "string",
+              "description": "The User-Agent header value, in quotes.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ReferrerHeader",
+              "type": "string",
+              "description": "The Referer header value.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ClientRequestId",
+              "type": "string",
+              "description": "The x-ms-client-request-id header value of the request.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "Etag",
+              "type": "string",
+              "description": "The ETag identifier for the returned object, in quotes.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ServiceType",
+              "type": "string",
+              "description": "The service associated with this request.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "OperationCount",
+              "type": "int",
+              "description": "The number of each logged operation that is involved in the request. This count starts with an index of 0. Some requests require more than one operation, such as a request to copy a blob. Most requests perform only one operation.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ObjectKey",
+              "type": "string",
+              "description": "The key of the requested object, in quotes.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequestHeaderSize",
+              "type": "long",
+              "description": "The size of the request header expressed in bytes. If a request is unsuccessful, this value might be empty.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequestBodySize",
+              "type": "long",
+              "description": "The size of the request packets, expressed in bytes, that are read by the storage service. If a request is unsuccessful, this value might be empty.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ResponseHeaderSize",
+              "type": "long",
+              "description": "The size of the response header expressed in bytes. If a request is unsuccessful, this value might be empty.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ResponseBodySize",
+              "type": "long",
+              "description": "The size of the response packets written by the storage service, in bytes. If a request is unsuccessful, this value may be empty.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "RequestMd5",
+              "type": "string",
+              "description": "The value of either the Content-MD5 header or the x-ms-content-md5 header in the request. The MD5 hash value specified in this field represents the content in the request.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ResponseMd5",
+              "type": "string",
+              "description": "The value of the MD5 hash calculated by the storage service.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "LastModifiedTime",
+              "type": "datetime",
+              "description": "The Last Modified Time (LMT) for the returned object. This field is empty for operations that can return multiple objects.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ConditionsUsed",
+              "type": "string",
+              "description": "A semicolon-separated list of key-value pairs that represent a condition.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "ContentLengthHeader",
+              "type": "long",
+              "description": "The value of the Content-Length header for the request sent to the storage service.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "Category",
+              "type": "string",
+              "description": "The category of requested operation.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "TlsVersion",
+              "type": "string",
+              "description": "The TLS version used in the connection of request.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SmbTreeConnectID",
+              "type": "string",
+              "description": "The SMB TreeConnectID established at TreeConnect time.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SmbPersistentHandleID",
+              "type": "string",
+              "description": "Persistent HandleID from an SMB2 Create request that survives network reconnects.  Referenced in [MS-SMB2] 2.2.14.1 as SMB2_FILEID.Persistent.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SmbVolatileHandleID",
+              "type": "string",
+              "description": "Volatile HandleID from an SMB2 Create request that is recycled on network reconnects.  Referenced in [MS-SMB2] 2.2.14.1 as SMB2_FILEID.Volatile.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SmbMessageID",
+              "type": "string",
+              "description": "The connection relative MessageId.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SmbCreditsConsumed",
+              "type": "int",
+              "description": "The ingress or egress consumed by the request, in units of 64k.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SmbCommandDetail",
+              "type": "string",
+              "description": "More information about this specific request rather than the general type of request.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SmbFileId",
+              "type": "string",
+              "description": "The FileId associated with file or directory.  Roughly analogous to an NTFS FileId.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SmbSessionID",
+              "type": "string",
+              "description": "The SMB2 SessionId established at SessionSetup time.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SmbCommandMajor",
+              "type": "int",
+              "description": "Value in SMB2_HEADER.Command, and is currently a number between 0 and 18 inclusive.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SmbCommandMinor",
+              "type": "string",
+              "description": "The subclass of  SmbCommandMajor, where appropriate.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SasExpiryStatus",
+              "type": "string",
+              "description": "Records any violations in the request SAS token as per the SAS policy set in the storage account. Ex: longer SAS token duration specified than allowed per SAS policy",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "MetricResponseType",
+              "type": "string",
+              "description": "Records the metric response for correlation between metrics and logs.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SmbStatusCode",
+              "type": "string",
+              "description": "Status code for SMB in a hex format.",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            },
+            {
+              "name": "SourceSystem",
+              "type": "string",
+              "isDefaultDisplay": true,
+              "isHidden": false
+            }
+          ]
+        },
+        "name": "StorageFileLogs_CL",
+        "plan": "Basic",
+        "totalRetentionInDays": 8
+      },
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageFileLogs_CL')]",
+      "apiVersion": "2021-12-01-preview",
+      "name": "[concat(parameters('workspaceName'), '/StorageFileLogs_CL')]"
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "properties": {
+        "totalRetentionInDays": 180,
+        "plan": "Analytics"
+      },
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageQueueLogs')]",
+      "apiVersion": "2022-10-01",
+      "name": "[concat(parameters('workspaceName'), '/StorageQueueLogs')]"
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "properties": {
+        "totalRetentionInDays": 180,
+        "plan": "Analytics"
+      },
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageTableLogs')]",
+      "apiVersion": "2022-10-01",
+      "name": "[concat(parameters('workspaceName'), '/StorageTableLogs')]"
+    }
+  ],
+  "contentVersion": "1.0.0.0"
+}
