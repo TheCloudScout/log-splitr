@@ -54,7 +54,7 @@ Write-Host "        |__|   |__/            Microsoft Sentinel  " -ForegroundColo
 Write-Host "                                                    █▒▒▒▒▒▒▒▒▒▒▒██" -ForegroundColor $BackgroundColor
 Write-Host "                                                    █▒▒▒▒▒▒▒▒▒▒▒  █▓" -ForegroundColor $BackgroundColor
 Write-Host "                                                     ██▒▒▒▒▒▒▒     ▒█" -ForegroundColor $BackgroundColor
-Write-Host "                 LET'S AXE THOSE LOGS! 🪓" -ForegroundColor $HighlightColor -nonewline; Write-Host "            ██▒▒▒▒          ██" -ForegroundColor $BackgroundColor
+Write-Host "                 LET'S " -ForegroundColor $HighlightColor -nonewline; Write-Host "AXE" -ForegroundColor White -nonewline; Write-Host " THOSE LOGS! 🪓" -ForegroundColor $HighlightColor -nonewline; Write-Host "            ██▒▒▒▒          ██" -ForegroundColor $BackgroundColor
 Write-Host "                                                     ██              ██" -ForegroundColor $BackgroundColor
 Write-Host "                                                       ████        ▒█" -ForegroundColor $BackgroundColor
 Write-Host "                                                           ████████▓" -ForegroundColor $BackgroundColor
@@ -320,7 +320,7 @@ try{
 try {
     Write-Host ""
     Write-Host "Deploying Data Collection Rule template..."
-    New-AzResourceGroupDeployment -ResourceGroupName $ResourceGroupName -TemplateObject $finaltemplate
+    # New-AzResourceGroupDeployment -ResourceGroupName $ResourceGroupName -TemplateObject $finaltemplate
     Write-Host ""
     Write-Host "Done!" -ForegroundColor Green
 } catch {
