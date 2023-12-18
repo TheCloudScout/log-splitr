@@ -1,24 +1,12 @@
 {
+  "contentVersion": "1.0.0.0",
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "parameters": {
-    "workspaceName": {
-      "defaultValue": "la-logging-01",
-      "type": "string"
-    },
-    "dcrName": {
-      "defaultValue": "dcr-la-logging-01",
-      "type": "string"
-    }
-  },
-  "variables": {
-    "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
-  },
   "resources": [
     {
-      "kind": "WorkspaceTransforms",
-      "type": "Microsoft.Insights/dataCollectionRules",
-      "name": "[parameters('dcrName')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2022-06-01",
       "properties": {
+        "dataSources": {},
         "destinations": {
           "logAnalytics": [
             {
@@ -27,88 +15,88 @@
             }
           ]
         },
-        "dataSources": {},
         "dataFlows": [
           {
-            "transformKql": "source\n| where OperationName == 'DeleteFile' or \n        OperationName == 'Flush' or \n        Category == 'StorageDelete'\n",
             "destinations": [
               "[parameters('workspaceName')]"
             ],
             "streams": [
               "Microsoft-Table-StorageBlobLogs"
-            ]
+            ],
+            "transformKql": "source\n| where OperationName == 'DeleteFile' or \n        OperationName == 'Flush' or \n        Category == 'StorageDelete'\n"
           },
           {
-            "transformKql": "source\n",
             "destinations": [
               "[parameters('workspaceName')]"
             ],
             "outputStream": "Custom-StorageBlobLogs_CL",
             "streams": [
               "Microsoft-Table-StorageBlobLogs"
-            ]
+            ],
+            "transformKql": "source\n"
           },
           {
-            "transformKql": "source\n| where OperationName == 'DeleteFile' or \n        OperationName == 'Flush' or \n        Category == 'StorageDelete'\n",
             "destinations": [
               "[parameters('workspaceName')]"
             ],
             "streams": [
               "Microsoft-Table-StorageFileLogs"
-            ]
+            ],
+            "transformKql": "source\n| where OperationName == 'DeleteFile' or \n        OperationName == 'Flush' or \n        Category == 'StorageDelete'\n"
           },
           {
-            "transformKql": "source\n",
             "destinations": [
               "[parameters('workspaceName')]"
             ],
             "outputStream": "Custom-StorageFileLogs_CL",
             "streams": [
               "Microsoft-Table-StorageFileLogs"
-            ]
+            ],
+            "transformKql": "source\n"
           },
           {
-            "transformKql": "source\n| where OperationName == 'DeleteFile' or \n        OperationName == 'Flush' or \n        Category == 'StorageDelete'\n",
             "destinations": [
               "[parameters('workspaceName')]"
             ],
             "streams": [
               "Microsoft-Table-StorageQueueLogs"
-            ]
+            ],
+            "transformKql": "source\n| where OperationName == 'DeleteFile' or \n        OperationName == 'Flush' or \n        Category == 'StorageDelete'\n"
           },
           {
-            "transformKql": "source\n| where OperationName == 'DeleteFile' or \n        OperationName == 'Flush' or \n        Category == 'StorageDelete'\n",
             "destinations": [
               "[parameters('workspaceName')]"
             ],
             "streams": [
               "Microsoft-Table-StorageTableLogs"
-            ]
+            ],
+            "transformKql": "source\n| where OperationName == 'DeleteFile' or \n        OperationName == 'Flush' or \n        Category == 'StorageDelete'\n"
           }
         ]
       },
-      "location": "[resourceGroup().location]",
+      "kind": "WorkspaceTransforms",
       "dependsOn": [
         "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageBlobLogs_CL')]",
         "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageFileLogs_CL')]"
       ],
-      "apiVersion": "2022-06-01"
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "name": "[parameters('dcrName')]"
     },
     {
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageBlobLogs')]",
       "type": "Microsoft.OperationalInsights/workspaces/tables",
       "properties": {
         "totalRetentionInDays": 180,
         "plan": "Analytics"
       },
-      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageBlobLogs')]",
-      "apiVersion": "2022-10-01",
-      "name": "[concat(parameters('workspaceName'), '/StorageBlobLogs')]"
+      "name": "[concat(parameters('workspaceName'), '/StorageBlobLogs')]",
+      "apiVersion": "2022-10-01"
     },
     {
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageBlobLogs_CL')]",
       "type": "Microsoft.OperationalInsights/workspaces/tables",
       "properties": {
         "schema": {
-          "name": "StorageBlobLogs_CL",
           "columns": [
             {
               "name": "TimeGenerated",
@@ -452,31 +440,31 @@
               "isDefaultDisplay": true,
               "isHidden": false
             }
-          ]
+          ],
+          "name": "StorageBlobLogs_CL"
         },
-        "name": "StorageBlobLogs_CL",
         "plan": "Basic",
+        "name": "StorageBlobLogs_CL",
         "totalRetentionInDays": 8
       },
-      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageBlobLogs_CL')]",
-      "apiVersion": "2021-12-01-preview",
-      "name": "[concat(parameters('workspaceName'), '/StorageBlobLogs_CL')]"
+      "name": "[concat(parameters('workspaceName'), '/StorageBlobLogs_CL')]",
+      "apiVersion": "2021-12-01-preview"
     },
     {
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageFileLogs')]",
       "type": "Microsoft.OperationalInsights/workspaces/tables",
       "properties": {
         "totalRetentionInDays": 180,
         "plan": "Analytics"
       },
-      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageFileLogs')]",
-      "apiVersion": "2022-10-01",
-      "name": "[concat(parameters('workspaceName'), '/StorageFileLogs')]"
+      "name": "[concat(parameters('workspaceName'), '/StorageFileLogs')]",
+      "apiVersion": "2022-10-01"
     },
     {
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageFileLogs_CL')]",
       "type": "Microsoft.OperationalInsights/workspaces/tables",
       "properties": {
         "schema": {
-          "name": "StorageFileLogs_CL",
           "columns": [
             {
               "name": "TimeGenerated",
@@ -876,36 +864,54 @@
               "isDefaultDisplay": true,
               "isHidden": false
             }
-          ]
+          ],
+          "name": "StorageFileLogs_CL"
         },
-        "name": "StorageFileLogs_CL",
         "plan": "Basic",
+        "name": "StorageFileLogs_CL",
         "totalRetentionInDays": 8
       },
-      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageFileLogs_CL')]",
-      "apiVersion": "2021-12-01-preview",
-      "name": "[concat(parameters('workspaceName'), '/StorageFileLogs_CL')]"
+      "name": "[concat(parameters('workspaceName'), '/StorageFileLogs_CL')]",
+      "apiVersion": "2021-12-01-preview"
     },
     {
-      "type": "Microsoft.OperationalInsights/workspaces/tables",
-      "properties": {
-        "totalRetentionInDays": 180,
-        "plan": "Analytics"
-      },
       "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageQueueLogs')]",
-      "apiVersion": "2022-10-01",
-      "name": "[concat(parameters('workspaceName'), '/StorageQueueLogs')]"
-    },
-    {
       "type": "Microsoft.OperationalInsights/workspaces/tables",
       "properties": {
         "totalRetentionInDays": 180,
         "plan": "Analytics"
       },
+      "name": "[concat(parameters('workspaceName'), '/StorageQueueLogs')]",
+      "apiVersion": "2022-10-01"
+    },
+    {
       "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), '/tables/StorageTableLogs')]",
-      "apiVersion": "2022-10-01",
-      "name": "[concat(parameters('workspaceName'), '/StorageTableLogs')]"
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "properties": {
+        "totalRetentionInDays": 180,
+        "plan": "Analytics"
+      },
+      "name": "[concat(parameters('workspaceName'), '/StorageTableLogs')]",
+      "apiVersion": "2022-10-01"
     }
   ],
-  "contentVersion": "1.0.0.0"
+  "outputs": {
+    "ResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Insights/dataCollectionRules', parameters('dcrName'))]"
+    }
+  },
+  "variables": {
+    "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+  },
+  "parameters": {
+    "workspaceName": {
+      "defaultValue": "la-logging-01",
+      "type": "string"
+    },
+    "dcrName": {
+      "defaultValue": "dcr-la-logging-01",
+      "type": "string"
+    }
+  }
 }
