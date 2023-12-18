@@ -35,7 +35,7 @@ log-splitr's behavior can be modified with some parameters:
 | --- | --- |
 | `SubscriptionId` | The subscription ID of the Azure subscription you want to deploy to and where your workspace resides. |
 | `WorkspaceName` | Name of the Log Analytics / Sentinel workspace you want to create the DCR for. |
-| `PathToYamlFile` | Location of YAML files for this specific workspace. |
+| `PathToYamlFile` | Location of YAML files with table definitions for this specific workspace. |
 | `ResourceGroupName` | Resource group you want to deploy the DCR to. |
 | `SaveTemplate` | Add this switch if you want to store the template to file. This helps with debugging but you also might want to use this script one-time only. |
 
