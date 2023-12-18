@@ -1,4 +1,4 @@
-# Split up your logs with $pl1tR\
+# Split up your logs with $pl1tR
 Drop what you don't need and save costs. What's not to like?!
 
 ![SplitR logo](.images/splitr-logo.jpg)
