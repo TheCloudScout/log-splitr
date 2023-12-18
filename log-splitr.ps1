@@ -2,35 +2,19 @@
     Koos Goossens 2023
     
     .DESCRIPTION
-    Permission requirements:
-    - Azure AD Application needs ThreatHunting.Read.All on Microsoft Graph.
-    - User running this script should be Owner, or both contributor and User Access Administrator, on the Azure subscription.
+    - Authenticate to Azure using Connect-AzAccount before running this script locally. Or run within your favorite deployment pipeline.
+    - Run in PowerShell 7 or higher.
 
-    .PARAMETER tenantId [string]
-    The Tenant ID of the Azure Active Directory in which the app registration and Azure subscription resides.
-    .PARAMETER appId [string]
-    The App ID of the application used to query Microsoft Graph to retrieve Defender table schemas.
-    .PARAMETER appSecret [string]
-    An active secret for the App Registration to query Microsoft Graph to retrieve Defender table schemas.
-    .PARAMETER subscriptionId [string]
-    Azure Subscription ID in which the archive resources should be deployed.
-    .PARAMETER resourceGroupName [string]
-    Name of the Resource Group in which archive resources should be deployed.
-    .PARAMETER m365defenderTables [string]
-    Comma-separated list of tables you want to setup an archive for. Keep in mind to user proper "PascalCase" for table names!
-    If this parameter is not provided, the script will use all tables supported by streaming API, and will setup archival on all of them.
-    .PARAMETER outputAdxScript [switch]
-    Used for debugging purposes so that the script will output the ADX script on screen before it gets passed into the deployments.
-    .PARAMETER saveAdxScript [switch]
-    Use -savedAdxScript to write content of $adxScript to 'adxScript.kusto' file. File can be re-used with -useAdxScript parameter.
-    .PARAMETER useAdxScript [string]
-    Provide path to existing 'adxScript.kusto' file created by -saveAdxScript parameter.
-    .PARAMETER skipPreReqChecks [switch]
-    Skip Azure subscription checks like checking enabled resource providers and current permissions. Useful when using this script in a pipeline where you're already sure of these prerequisites.
-    .PARAMETER noDeploy [switch]
-    Used for debugging purposes so that the actual Azure deployment steps are skipped.
-    .PARAMETER deploySentinelFunctions [switch]
-    Use -deploySentinelFunctions to add optional step to the deployment process where (Sentinel) workspace functions are deployed (savedSearches) to be able to query ADX from Log Analytics / Sentinel UI.
+    .PARAMETER SubscriptionId [string]
+    The subscription ID of the Azure subscription you want to deploy to and where your workspace resides.
+    .PARAMETER WorkspaceName [string]
+    Name of the Log Analytics / Sentinel workspace you want to create the DCR for.
+    .PARAMETER PathToYamlFiles [string]
+    Location of YAML files with table definitions for this specific workspace.
+    .PARAMETER ResourceGroupName [string]
+    Resource group you want to deploy the DCR to.
+    .PARAMETER SaveTemplate [switch]
+    Add this switch if you want to store the template to file. This helps with debugging but you also might want to use this script one-time only.
 
 #>
 
@@ -49,7 +33,7 @@ param (
     [String] $ResourceGroupName,
 
     [Parameter (Mandatory = $false)]
-    [Switch] $saveTemplate
+    [Switch] $SaveTemplate
 
 )
 
