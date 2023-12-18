@@ -3,7 +3,7 @@ Drop what you don't need and save costs. What's not to like?!
 
 ![SplitR logo](.images/splitr-logo.jpg)
 
-> For more information please read [my article on Medium]()
+> For more information please read [my article on Medium](https://koosg.medium.com/split-up-your-logs-with-pl1tr-3ab3c76e3125)
 
 ## Introduction
 
