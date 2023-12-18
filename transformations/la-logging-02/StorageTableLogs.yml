@@ -1,0 +1,10 @@
+tableName: StorageTableLogs
+analyticsRetentionInDays: 180
+analyticsTransform: |
+  source
+  | where OperationName == 'DeleteFile' or 
+          OperationName == 'Flush' or 
+          Category == 'StorageDelete'
+basicEnabled: false
+basicRetentionInDays: 
+basicTransform:
